@@ -48,30 +48,60 @@
                 <!-- display message start -->
                 <?php if (isset($_GET['msg'])) { ?>
 
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                    <strong><?= $_GET['msg'] ?></strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-            <?php  } ?>
-                <!-- display message end -->
-                <form action="process.php" method="post">
-                    <div class="form shadow p-3 m-2">
-                        <div class="mb-3">
-                            <label for="exampleFormControlInput1" class="form-label">Title</label>
-                            <input type="text" name="title" class="form-control" id="exampleFormControlInput1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="exampleFormControlTextarea1" class="form-label">Content</label>
-                            <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <button type="submit" name="addContent" class="btn btn-primary mb-3">Submit</button>
-                        </div>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong><?= $_GET['msg'] ?></strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                </form>
+
+                <?php  } ?>
+                <!-- display message end -->
+                <?php
+                if (isset($_GET['edit'])) { ?>
+                <!-- this is for update form -->
+                <?php 
+                    $id = $_GET['id'];
+
+                    $getPost = $conn->prepare("SELECT * FROM contents WHERE id = ?");
+                    $getPost->execute([$id]);
+
+                    foreach($getPost as $post){ ?>                    
+                    <form action="process.php" method="post">
+                        <input type="hidden" name="postID" value="<?= $post['id'] ?>">
+                        <div class="form shadow p-3 m-2">
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" id="exampleFormControlInput1" value="<?= $post['title'] ?>">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Content</label>
+                                <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3"><?= $post['content'] ?></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" name="updateContent" class="btn btn-warning mb-3">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                    <?php } ?>
+                <?php } else { ?>
+                    <!-- for adding form -->
+                    <form action="process.php" method="post">
+                        <div class="form shadow p-3 m-2">
+                            <div class="mb-3">
+                                <label for="exampleFormControlInput1" class="form-label">Title</label>
+                                <input type="text" name="title" class="form-control" id="exampleFormControlInput1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="exampleFormControlTextarea1" class="form-label">Content</label>
+                                <textarea class="form-control" name="content" id="exampleFormControlTextarea1" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" name="addContent" class="btn btn-primary mb-3">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                <?php } ?>
             </div>
-            
+
             <div class="col-9">
                 <div class="table">
                     <table class="table">
@@ -82,23 +112,20 @@
                             <th>Action</th>
                         </thead>
                         <tbody>
-                            <?php 
+                            <?php
                             $select = $conn->query("SELECT * FROM contents");
                             $cnt = 1;
-                            foreach($select as $selected){
+                            foreach ($select as $selected) {
                                 // echo $selected['title'];
-                               
-
-                                echo "
+                            ?>
                                 <tr>
-                                    <td>".$cnt."</td>
-                                    <td>". $selected['title'] . "</td>
-                                    <td>" . $selected['content'] . "</td>
-                                    <td>✅ | ❌</td>
+                                    <td><?= $cnt ?></td>
+                                    <td><?= $selected['title'] ?></td>
+                                    <td><?= $selected['content'] ?></td>
+                                    <td> <a href='index.php?edit&id=<?= $selected["id"] ?>' class="text-decoration-none">✏️</a> | <a href="process.php?delete&id=<?= $selected["id"] ?>" class="text-decoration-none">❌</a></td>
                                 </tr>
-                                ";
+                            <?php
                                 $cnt++;
-
                             }
                             ?>
                             <!-- <tr>
